@@ -56,7 +56,7 @@ public class PersonController {
 		// doOnSubscribe、doOnNext、sink.success、doOnSuccess根本不是在Controller里面做的，而是在Mono return回到Netty Web容器去之后被执行的
 		// 感觉就是把Controller释放掉了，在Controller里面异步获取数据，上面的几个lambda表达式全部都是回调。
 		// 得到一个包装数据序列 ——> 包含特征 --> return给容器 --> 调用以上的回调
-		// 看起来像是异步，其实是在容器里阻塞了，因为其中有个Mono.just(...);还是阻塞的，只不过没发生在Controller曾，所以两次的System.out.println率先被打印了
+		// 看起来像是异步，其实是在容器里阻塞了，因为其中有个Mono.just(...);还是阻塞的，只不过没发生在Controller层，所以两次的System.out.println率先被打印了
 		// 这么看真的有点像双重判断的懒汉式单例模式中，INSTANCE不加volatile的有指令重排序的执行流程啊！！
 		// 跟到最后会到Operators.complete(), 其中state == 2 ，也就是：HAS_REQUEST_NO_VALUE，请求来了，但是还没结果。这里有个for (; ; ) {...}等待结果时就卡在这里
 		// Controller中的线程跟容器里的业务线程应该是一个线程，猜的，因为没看到什么线程池
